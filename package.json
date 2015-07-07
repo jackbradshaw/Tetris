@@ -1,0 +1,8 @@
+{
+  "name": "Tetris",
+  "version": "0.1.0",
+  "devDependencies": {
+    "knockout": "^3.3.0",
+    "requirejs": "^2.1.18"
+  }
+}
