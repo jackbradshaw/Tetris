@@ -3,8 +3,16 @@
     <head>
         <title>Tetris</title>
         <script data-main="main.js" src="node_modules\requirejs/require.js"></script>
+        <link rel="stylesheet" type="text/css" href="styles.css">
     </head>
     <body>
         <h1>Tetris</h1>
+        <div data-bind="event: {keypress: keyDown}" tabindex="0">
+		    <div data-bind="foreach: {data : grid.tiles, as : 'row'}">
+		        <div data-bind="foreach: row" class="row">
+		            <div class="tile" data-bind="style: {backgroundColor: colour}"></div>
+		        </div>
+		    </div>
+		</div>
     </body>
 </html>

@@ -2,13 +2,14 @@ define(function() {
 
     return function () {
 
-    	var self;
     	var Tetromino = function(minos, grid, colour) {
-    	    self = this;
+            this.minos = minos;
+            this.grid = grid;
+            this.colour = colour;
     	};
     	    
         Tetromino.prototype.height = function() {
-            var yValues = minos.map(function(mino) { 
+            var yValues = this.minos.map(function(mino) { 
                 return mino.y
             });
             var minY = Math.min.apply(null, yValues);   
@@ -17,46 +18,53 @@ define(function() {
         }
         
         Tetromino.prototype.getTiles = function() {
-            return getOffsetCoordinates().map(function(coordinate) {
-                if(!grid.contains(coordinate)) {
+            var self = this;
+            return self.getOffsetCoordinates().map(function(coordinate) {
+                if(!self.grid.contains(coordinate)) {
                     throw new Error("Coordinate not in grid");
                 } else {
-                    return grid.tiles()[coordinate.y][coordinate.x];
+                    return self.grid.tiles()[coordinate.y][coordinate.x];
                 }
             })
         }
 
         Tetromino.prototype.move = function(direction) {
-            var canMoveBlock = canMove(direction);
+            var self = this;
+            var canMoveBlock = self.canMove(direction);
             if(canMoveBlock) {
-               redrawBlock(function() {         
-               self.position.y += direction.y;
-                  self.position.x += direction.x;
-               });
+                this.redrawBlock(function() {         
+                    self.position.y += direction.y;
+                    self.position.x += direction.x;
+                });
             }
             return canMoveBlock;
         }  
                            
         Tetromino.prototype.rotate = function() {
-            if(canRotate()) {
-                redrawBlock(function() {
-                    minos = getRotated(minos);
+            var self = this;
+            if(self.canRotate()) {
+                self.redrawBlock(function() {
+                    self.minos = self.getRotated(self.minos);
                 });           
             }
         }
 
-        function getRotated(coordinates) {
+        Tetromino.prototype.getRotated = function(coordinates) {
             return coordinates.map(function(coordinate) {
-                return { x: coordinate.y, y: -coordinate.x};  
+                return { 
+                    x: coordinate.y, 
+                    y: -coordinate.x
+                };  
             });
         }
         
-        function canRotate() {
-            return willFit(getOffsetCoordinates(getRotated(minos)));
+        Tetromino.prototype.canRotate = function() {
+            return this.willFit(this.getOffsetCoordinates(this.getRotated(this.minos)));
         }
 
-        function getOffsetCoordinates(coordinates) {
-            coordinates = coordinates || minos;
+        Tetromino.prototype.getOffsetCoordinates = function(coordinates) {
+            var self = this;
+            coordinates = coordinates || self.minos;
             return coordinates.map(function(coordinate) {
                 return {
                     x: self.position.x + coordinate.x,
@@ -65,20 +73,22 @@ define(function() {
             });
         }
         
-        function redrawBlock(update) {
+        Tetromino.prototype.redrawBlock = function(update) {
+            var self = this;
             self.getTiles().forEach(function(tile) {
-                tile.occupied(false);            
+                tile.occupied(false);   
+                tile.colour(self.grid.colour);         
             });    
             update(); 
             self.getTiles().forEach(function(tile) {
                 tile.occupied(true);
-                tile.colour(colour);
+                tile.colour(self.colour);
             });
         }
         
-        function canMove(direction) {
-            var coordinates = getOffsetCoordinates();
-            return willFit(coordinates.map(function(tile) {
+        Tetromino.prototype.canMove = function(direction) {
+            var coordinates = this.getOffsetCoordinates();
+            return this.willFit(coordinates.map(function(tile) {
                 return {
                     x: tile.x + direction.x, 
                     y: tile.y + direction.y
@@ -86,12 +96,13 @@ define(function() {
             }));
         }
         
-        function willFit(coordinates) {
+        Tetromino.prototype.willFit = function(coordinates) {
+            var self = this;
             var blockTiles = self.getTiles();
             return coordinates.every(function(coordinate) {
                 var coordinateFree = false;
-                if(grid.contains(coordinate)) {
-                    var tile = grid.tiles()[coordinate.y][coordinate.x];
+                if(self.grid.contains(coordinate)) {
+                    var tile = self.grid.tiles()[coordinate.y][coordinate.x];
                     coordinateFree = !tile || blockTiles.indexOf(tile) !== -1 || !tile.occupied(); 
                 }
                 return coordinateFree;

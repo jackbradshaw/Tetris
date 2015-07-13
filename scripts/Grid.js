@@ -1,77 +1,79 @@
 define(["knockout", "./Tetromino", "./Tile"], function(ko, Block, Tile) {
 
-    return function() {
-        var self = this;
-        var row = 0;         
+    return function() {     
 
-        var Grid = function Grid(width, height) {
-            self = this;
-            self.tiles = ko.observableArray();
+        var Grid = function Grid(width, height, colour) {
+            this.width = width;
+            this.height = height;
+            this.colour = colour;
+            this.row = 0;
+            this.tiles = ko.observableArray();
             for(var y = 0; y < height; y++) {
-                addRow();
+                this.addRow();
             }
         };
         
-        function addRow() {
-            var row = [] ;
-            for(var x = 0; x < width; x++) {
-                row[x] = new Tile(false, self.colour);
+        Grid.prototype.addRow = function() {
+            var row = [];
+            for(var x = 0; x < this.width; x++) {
+                row[x] = new Tile(false, this.colour);
             }
-            self.tiles.unshift(row);
+            this.tiles.unshift(row);
         }  
         
         Grid.prototype.removeCompleteRows = function() {
+            var self = this;
             self.tiles().forEach(function(row) {
                 var rowComplete = row.every(function(tile) {
                      return tile.occupied();   
                 });
                 if(rowComplete) {
                     self.tiles.remove(row);
-                    addRow();
+                    self.addRow();
                 }
-            })
+            });
         }
         
         Grid.prototype.moveDown = function() {
-            var moved = self.block.move({x: 0, y: 1});
+            var moved = this.block.move({x: 0, y: 1});
             if(!moved){
-                self.addBlock(self.getNewBlock(), {x:5, y:0});
-                self.removeCompleteRows();
+                this.addBlock(this.getNewBlock(), { x:5, y:0 });
+                this.removeCompleteRows();
             }
         };
         
-        Grid.prototype.addBlock= function(block) {
-          self.block = block;   
+        Grid.prototype.addBlock = function(block) {
+            this.block = block;   
         }
         
         Grid.prototype.getNewBlock = function() {
             var blocks = [
-                makeBlock([{x:0, y:0}, {x:0, y:1}, {x: 1, y: 1}, {x:1, y:2}], "red"),
-                makeBlock([{x:0, y:1}, {x:1, y:1}, {x: 1, y: 0}, {x:2, y:0}], "green"),
-                makeBlock([{x:0, y:0}, {x:0, y:1}, {x: 0, y: 2}, {x:0, y:3}], "white"),
-                makeBlock([{x:0, y:0}, {x:1, y:0}, {x: 0, y: 1}, {x:1, y:1}], "yellow"),
-                makeBlock([{x:1, y:-1}, {x:1, y:0}, {x: 1, y: 1}, {x:0, y:1}], "magenta"),
-                makeBlock([{x:-1, y:-1}, {x:-1, y:0}, {x: -1, y: 1}, {x:0, y:1}], "cyan")
+                this.makeBlock([{x:0, y:0}, {x:0, y:1}, {x: 1, y: 1}, {x:1, y:2}], "red"),
+                this.makeBlock([{x:0, y:1}, {x:1, y:1}, {x: 1, y: 0}, {x:2, y:0}], "green"),
+                this.makeBlock([{x:0, y:0}, {x:0, y:1}, {x: 0, y: 2}, {x:0, y:3}], "white"),
+                this.makeBlock([{x:0, y:0}, {x:1, y:0}, {x: 0, y: 1}, {x:1, y:1}], "yellow"),
+                this.makeBlock([{x:1, y:-1}, {x:1, y:0}, {x: 1, y: 1}, {x:0, y:1}], "magenta"),
+                this.makeBlock([{x:-1, y:-1}, {x:-1, y:0}, {x: -1, y: 1}, {x:0, y:1}], "cyan")
             ];
             
             var randomIndex = Math.floor(Math.random() * blocks.length);
             return blocks[randomIndex];
         };
         
-        function makeBlock(points, blockColour) {
+        Grid.prototype.makeBlock = function(points, blockColour) {
             var block = new Block( 
                 points,
-                self,
+                this,
                 blockColour);  
             block.position = {
-                x: width / 2,
+                x: this.width / 2,
                 y: block.height()
             };
             return block;        
         }
         
         Grid.prototype.contains = function(coordinate) {
-             return 0 <= coordinate.x && coordinate.x < width && 0 <= coordinate.y && coordinate.y < height;  
+             return 0 <= coordinate.x && coordinate.x < this.width && 0 <= coordinate.y && coordinate.y < this.height;  
         }
 
         return Grid;

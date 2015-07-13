@@ -1,0 +1,13 @@
+.row {
+    font-size:0;
+}
+
+.tile{
+    display: inline-block;
+    width:20px;
+    height:20px;
+}
+
+.occupied{
+ 	background-color:red;   
+}
