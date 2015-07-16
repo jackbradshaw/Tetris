@@ -1,8 +1,9 @@
-define(["knockout"], function(ko) {
+define(function() {
 	return function() {
-		var Tile = function(occupied, colour) {
-		    this.occupied = ko.observable(occupied);
-		    this.colour = ko.observable(colour);
+		var Tile = function(coordinate, colour) {
+		    this.x = coordinate.x;
+		    this.y = coordinate.y;
+		    this.colour = colour;
 		};
 		return Tile;
 	}();

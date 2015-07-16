@@ -1,7 +1,7 @@
 define(["knockout", "./TetrisViewmodel"], function(ko, TetrisViewmodel) {
-	console.log(ko);
-	var viewModel = new TetrisViewmodel(12, 20, "blue");
-	ko.applyBindings(viewModel);
-	viewModel.grid.addBlock(viewModel.grid.getNewBlock());
+	var canvas = document.getElementById("canvas");
+	var viewModel = new TetrisViewmodel(10, 22, "blue", canvas);
+	viewModel.grid.addTetromino(viewModel.grid.getNewTetromino());
 	setInterval(viewModel.tick.bind(viewModel), 200);
+	ko.applyBindings(viewModel);	
 });
