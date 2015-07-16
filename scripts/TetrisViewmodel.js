@@ -2,9 +2,9 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
 
     return function() {
 
-        var TetrisViewModel = function(width, height, colour, canvas) {
+        var TetrisViewModel = function(width, height, canvas) {
             this.blockSize = 20;
-            this.grid = new Grid(width, height, colour);
+            this.grid = new Grid(width, height);
             this.canvas = canvas;
             this.canvas.width = width * this.blockSize;
             this.canvas.height = (height - 2) * this.blockSize;

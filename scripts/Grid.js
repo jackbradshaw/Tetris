@@ -1,14 +1,22 @@
-define(["./Tetromino", "./Tile"], function(Tetromino, Tile) {
+define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
 
     return function() {     
 
         var Grid = function Grid(width, height) {
+
             this.width = width;
             this.height = height;
+
+            this.tetrominoFactory = new TetrominoFactory(
+                { x: width / 2, y: 1 },
+                this.isTileAvailable.bind(this));
+
             this.rows = [];
             for(var y = 0; y < height ; y++) {
                 this.rows[y] = this.newRow();
             }
+
+            this.dropNewTetromino();
         };
         
         Grid.prototype.newRow = function() {
@@ -41,7 +49,7 @@ define(["./Tetromino", "./Tile"], function(Tetromino, Tile) {
             var moved = this.tetromino.move({x: 0, y: 1});
             if(!moved) {
                 this.lockTetromino();
-                this.addTetromino(this.getNewTetromino(), { x:5, y:0 });
+                this.dropNewTetromino();
                 this.removeCompleteRows();
             }
         };
@@ -60,8 +68,8 @@ define(["./Tetromino", "./Tile"], function(Tetromino, Tile) {
             });
         };
         
-        Grid.prototype.addTetromino = function(tetromino) {
-            this.tetromino = tetromino;   
+        Grid.prototype.dropNewTetromino = function() {
+            this.tetromino = this.tetrominoFactory.makeTetromino();   
         };
 
         Grid.prototype.contains = function(coordinate) {
@@ -70,35 +78,6 @@ define(["./Tetromino", "./Tile"], function(Tetromino, Tile) {
 
         Grid.prototype.isTileAvailable = function(coordinate) {
             return this.contains(coordinate) && !this.rows[coordinate.y][coordinate.x];
-        };
-
-        //Move to Tetromino factory
-        Grid.prototype.getNewTetromino = function() {
-            var Tetrominos = [
-                this.makeTetromino([{x:0, y:0}, {x:0, y:1}, {x: 1, y: 1}, {x:1, y:2}], "red"),
-                this.makeTetromino([{x:0, y:1}, {x:1, y:1}, {x: 1, y: 0}, {x:2, y:0}], "green"),
-                this.makeTetromino([{x:0, y:0}, {x:0, y:1}, {x: 0, y: 2}, {x:0, y:3}], "orange"),
-                this.makeTetromino([{x:0, y:0}, {x:1, y:0}, {x: 0, y: 1}, {x:1, y:1}], "yellow"),
-                this.makeTetromino([{x:1, y:-1}, {x:1, y:0}, {x: 1, y: 1}, {x:0, y:1}], "magenta"),
-                this.makeTetromino([{x:-1, y:-1}, {x:-1, y:0}, {x: -1, y: 1}, {x:0, y:1}], "cyan")
-            ];
-            
-            var randomIndex = Math.floor(Math.random() * Tetrominos.length);
-            return Tetrominos[randomIndex];
-        };
-        
-        Grid.prototype.makeTetromino = function(points, colour) {
-            var position = {
-                x: this.width / 2,
-                y: 1
-            };
-            var tetromino = new Tetromino( 
-                points,
-                colour,
-                position,
-                this.isTileAvailable.bind(this));  
-            
-            return tetromino;        
         };
 
         return Grid;
