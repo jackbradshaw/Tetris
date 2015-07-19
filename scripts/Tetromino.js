@@ -32,13 +32,16 @@ define(function() {
                            
         Tetromino.prototype.rotate = function(direction) {
             var self = this;
+            var rotated = false;
             var targetRotationState = self.getRotationState(direction);
             var rotationOffset = self.canRotate(targetRotationState)
             if(rotationOffset) {
                 self.position.x += rotationOffset.x;
                 self.position.y += rotationOffset.y;
-                self.rotationState = targetRotationState;          
+                self.rotationState = targetRotationState;  
+                rotated = true;        
             }
+            return rotated;
         };
 
         Tetromino.prototype.canRotate = function(targetRotationState) {

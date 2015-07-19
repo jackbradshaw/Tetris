@@ -4,16 +4,11 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
 
         var TetrisViewModel = function(width, height, canvas) {
             this.blockSize = 20;
-            this.grid = new Grid(width, height);
+            this.grid = new Grid(width, height, this.draw.bind(this));
             this.canvas = canvas;
             this.canvas.width = width * this.blockSize;
             this.canvas.height = (height - 2) * this.blockSize;
         };
-            
-        TetrisViewModel.prototype.tick = function() {
-             this.grid.moveDown();         
-             this.draw();
-        }
 
         TetrisViewModel.prototype.draw = function() {
             var self = this;
@@ -39,21 +34,20 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
         TetrisViewModel.prototype.keyDown = function(viewmodel, event) {
             var code = event.keyCode || event.which; 
             if(code === 97) {
-                this.grid.tetromino.move({x:-1, y:0}); 
+                this.grid.moveTetromino({x:-1, y:0}); 
             }
             if(code === 100) {
-                 this.grid.tetromino.move({x:1, y:0});
+                 this.grid.moveTetromino({x:1, y:0});
             }
             if(code === 115) {
-                this.grid.tetromino.move({x:0, y:1});
+                this.grid.moveTetromino({x:0, y:1});
             }
             if(code === 107) {
-                this.grid.tetromino.rotate(-1);   
+                this.grid.rotateTetromino(-1);   
             }
             if(code === 108) {
-                this.grid.tetromino.rotate(1);
+                this.grid.rotateTetromino(1);
             }
-            this.draw();
         }
         return TetrisViewModel;
     }();

@@ -2,10 +2,15 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
 
     return function() {     
 
-        var Grid = function Grid(width, height) {
+        var Grid = function Grid(width, height, updated) {
 
             this.width = width;
             this.height = height;
+
+            this.updated = updated;
+
+            this.dropInterval = 200;
+            this.lockInterval = 400;
 
             this.tetrominoFactory = new TetrominoFactory(
                 { x: width / 2, y: 1 },
@@ -45,20 +50,45 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
             });
         } 
         
+        Grid.prototype.scheduleMoveDown = function() {
+            setTimeout(this.moveDown.bind(this), this.dropInterval);
+        }
+
         Grid.prototype.moveDown = function() {
-            var moved = this.tetromino.move({x: 0, y: 1});
-            if(!moved) {
-                this.lockTetromino();
-                this.dropNewTetromino();
-                this.removeCompleteRows();
+            if(!this.tetromino.move({x: 0, y: 1})){
+                this.scheduleLock();  
+            } else {
+                this.updated();
+                this.scheduleMoveDown();
             }
         };
+
+        Grid.prototype.scheduleLock = function() {
+            var self = this;
+            this.scheduledLock = setTimeout(function() {
+                self.lockTetromino.call(self);
+                self.scheduledLock = undefined;
+            }, self.lockInterval);
+        }
+
+        Grid.prototype.resetScheduledLock = function() {
+            var reset = false;
+            if(this.scheduledLock) {
+                clearTimeout(this.scheduledLock);
+                this.scheduleLock();
+                reset = true;
+            }
+            return reset;
+        }
 
         Grid.prototype.lockTetromino = function() {
             var self = this;
             self.getTetrominoTiles().forEach(function (tile) {
                self.rows[tile.y][tile.x] = tile.colour; 
             });
+           
+            this.removeCompleteRows();
+            this.dropNewTetromino();
         };
 
         Grid.prototype.getTetrominoTiles = function() {
@@ -69,7 +99,26 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
         };
         
         Grid.prototype.dropNewTetromino = function() {
-            this.tetromino = this.tetrominoFactory.makeTetromino();   
+            this.tetromino = this.tetrominoFactory.makeTetromino();  
+            this.scheduleMoveDown(); 
+        };
+
+        Grid.prototype.moveTetromino = function(direction) {
+            if(this.tetromino.move(direction)) {
+                 if(this.resetScheduledLock()) {
+                    while(this.tetromino.move({x: 0, y: 1}));
+                }
+            }
+            this.updated();
+        };
+
+        Grid.prototype.rotateTetromino = function(direction) {
+            if(this.tetromino.rotate(direction)) {                
+                if(this.resetScheduledLock()) {
+                    while(this.tetromino.move({x: 0, y: 1}));
+                }
+            }
+            this.updated();
         };
 
         Grid.prototype.contains = function(coordinate) {
