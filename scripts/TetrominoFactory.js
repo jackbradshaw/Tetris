@@ -26,11 +26,12 @@ define(["./Tetromino"], function(Tetromino) {
 		];
 	};
 
-	TetrominoFactory.prototype.make = function(minos, colour) {
+	TetrominoFactory.prototype.make = function(minos, colour, rotationOffsetData) {
 		return new Tetromino(
 			minos, 
 			colour,
 			{x: this.position.x, y: this.position.y},
+			rotationOffsetData,
 			this.isCoordinateAvailable
 		);
 	};
@@ -42,7 +43,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 1, y: 0},
 			{x : 1, y: 1}
 			],
-			"yellow"
+			"yellow",
+			this.width2RotationOffsetData()
 		);
 	};
 
@@ -53,7 +55,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 1, y: 0},
 			{x : 0, y: -1}
 			],
-			"purple"
+			"purple",
+			this.width3RotationOffsetData()
 		);
 	};
 
@@ -64,7 +67,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 0, y: -1},
 			{x : 1, y: -1}
 			],
-			"green"
+			"green",
+			this.width3RotationOffsetData()
 		);
 	};
 
@@ -75,7 +79,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 0, y: 0},
 			{x : 1, y: 0}
 			],
-			"red"
+			"red",
+			this.width3RotationOffsetData()
 		);
 	};
 
@@ -86,7 +91,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 1, y: 0},
 			{x : 1, y: 1}
 			],
-			"orange"
+			"orange",
+			this.width3RotationOffsetData()
 		);
 	};
 
@@ -97,7 +103,8 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 0, y: 0},
 			{x : 1, y: 0}
 			],
-			"blue"
+			"blue",
+			this.width3RotationOffsetData()
 		);
 	};
 
@@ -108,8 +115,36 @@ define(["./Tetromino"], function(Tetromino) {
 			{x : 1, y: 0},
 			{x : 2, y: 0}
 			],
-			"cyan"
+			"cyan",
+			this.width4RotationOffsetData()
 		);
+	};
+
+	TetrominoFactory.prototype.width3RotationOffsetData = function() {
+		return [
+			[{x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 }],
+			[{x: 0, y: 0 }, {x: 1, y: 0 }, {x: 1, y: -1 }, {x: 0, y: 2 }, {x: 1, y: 2 }],
+			[{x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 },  {x: 0, y: 0 }],				
+			[{x: 0, y: 0 }, {x: -1, y: 0 }, {x: -1, y: -1 }, {x: 0, y: 2 }, {x: -1, y: 2 }]
+		];
+	};
+
+	TetrominoFactory.prototype.width4RotationOffsetData = function() {
+		return [
+			[{x: 0, y: 0 }, {x: -1, y: 0 }, {x: 2, y: 0 }, {x: -1, y: 0 }, {x: 2, y: 0 }],
+			[{x: -1, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 0 }, {x: 0, y: 1 }, {x: 0, y: -2 }],			
+			[{x: -1, y: 1 }, {x: 1, y: 1 }, {x: -2, y: 1 }, {x: 1, y: 0 }, {x: -2, y: 0 }],
+			[{x: 0, y: 1 }, {x: 0, y: 1 }, {x: 0, y: 1 }, {x: 0, y: -1 }, {x: 0, y: 2 }]			
+		];
+	};
+
+	TetrominoFactory.prototype.width2RotationOffsetData = function() {
+		return [
+			[{x: 0, y: 0 }],
+			[{x: 0, y: -1 }],
+			[{x: -1, y: -1 }],	
+			[{x: -1, y: 0 }]
+		];
 	};
 
 	return TetrominoFactory;

@@ -2,22 +2,14 @@ define(function() {
 
     return function () {
 
-    	var Tetromino = function(minos, colour, position, isCoordinateAvailable) {
+    	var Tetromino = function(minos, colour, position, rotationOffsetData, isCoordinateAvailable) {
             this.minos = minos;
             this.position = position;
             this.colour = colour;
+            this.rotationOffsetData = rotationOffsetData;
+            this.rotationState = 0;
             this.isCoordinateAvailable = isCoordinateAvailable;
     	};
-    	    
-        //Do we need?
-        Tetromino.prototype.height = function() {
-            var yValues = this.minos.map(function(mino) { 
-                return mino.y
-            });
-            var minY = Math.min.apply(null, yValues);   
-            var maxY = Math.max.apply(null, yValues);  
-            return 1 + maxY - minY;
-        }; 
 
         Tetromino.prototype.move = function(direction) {
             var self = this;
@@ -29,49 +21,72 @@ define(function() {
             return canMoveBlock;
         };
 
-        Tetromino.prototype.canMove = function(direction) {
-            var coordinates = this.getOffsetCoordinates();
-            return this.willFit(coordinates.map(function(tile) {
-                return {
-                    x: tile.x + direction.x, 
-                    y: tile.y + direction.y
-                };
-            }));
+        Tetromino.prototype.canMove = function(offset) {
+            return this.willFit(this.getOffsetCoordinates(offset));
         }; 
+
+        Tetromino.prototype.getRotationState = function(direction) {
+            direction = direction || 0;
+            return (4 + this.rotationState + direction) % 4;
+        } 
                            
-        Tetromino.prototype.rotate = function() {
+        Tetromino.prototype.rotate = function(direction) {
             var self = this;
-            if(self.canRotate()) {
-                self.minos = self.getRotated(self.minos);          
+            var targetRotationState = self.getRotationState(direction);
+            var rotationOffset = self.canRotate(targetRotationState)
+            if(rotationOffset) {
+                self.position.x += rotationOffset.x;
+                self.position.y += rotationOffset.y;
+                self.rotationState = targetRotationState;          
             }
         };
 
-        Tetromino.prototype.canRotate = function() {
-            return this.willFit(this.getOffsetCoordinates(this.getRotated(this.minos)));
+        Tetromino.prototype.canRotate = function(targetRotationState) {
+            var self = this;
+            var rotationOffset;
+            var sourceOffsets = self.rotationOffsetData[self.rotationState];
+            var targetOffsets = self.rotationOffsetData[targetRotationState];
+            for(var i = 0; i < targetOffsets.length && !rotationOffset; i++) { 
+                var offset = {
+                    x: sourceOffsets[i].x - targetOffsets[i].x,
+                    y: sourceOffsets[i].y - targetOffsets[i].y
+                };
+                if(self.willFit(self.getOffsetCoordinates(offset, targetRotationState))) {
+                    rotationOffset = offset;
+                }
+            }
+            return rotationOffset;
         };    
                 
         Tetromino.prototype.willFit = function(coordinates) {
             return coordinates.every(this.isCoordinateAvailable);
     	};
 
-        Tetromino.prototype.getOffsetCoordinates = function(coordinates) {
+        Tetromino.prototype.getOffsetCoordinates = function(offset, rotationState) {
             var self = this;
-            coordinates = coordinates || self.minos;
-            return coordinates.map(function(coordinate) {
+            offset = offset || { x: 0, y: 0 }; 
+            rotationState = rotationState !== undefined ? rotationState : self.rotationState;
+
+            var rotated = self.getRotated(rotationState);
+            return rotated.map(function(coordinate) {
                 return {
-                    x: self.position.x + coordinate.x,
-                    y: self.position.y + coordinate.y
+                    x: self.position.x + offset.x + coordinate.x,
+                    y: self.position.y + offset.y + coordinate.y
                 };
             });
         }
 
-        Tetromino.prototype.getRotated = function(coordinates) {
-            return coordinates.map(function(coordinate) {
-                return { 
-                    x: coordinate.y, 
-                    y: -coordinate.x
-                };  
-            });
+        Tetromino.prototype.getRotated = function(rotationState) {
+            var rotated = this.minos;
+            for(var i = 0; i < rotationState; i++) {
+                rotated = rotated.map(function(coordinate) {
+                    return { 
+                        x: coordinate.y, 
+                        y: -coordinate.x
+                    };  
+                });
+            }
+            return rotated;
         }; 
 
     	return Tetromino;

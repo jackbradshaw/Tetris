@@ -47,8 +47,11 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
             if(code === 115) {
                 this.grid.tetromino.move({x:0, y:1});
             }
-            if(code === 32) {
-                this.grid.tetromino.rotate();   
+            if(code === 107) {
+                this.grid.tetromino.rotate(-1);   
+            }
+            if(code === 108) {
+                this.grid.tetromino.rotate(1);
             }
             this.draw();
         }
