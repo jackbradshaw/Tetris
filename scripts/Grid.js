@@ -97,6 +97,13 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
                 return new Tile(coordinate, self.tetromino.colour);
             });
         };
+
+        Grid.prototype.getGhostTiles = function() {
+            var self = this;
+            return !self.tetromino ? [] : self.tetromino.getDroppedCoordinates().map(function(coordinate) {
+                return new Tile(coordinate, self.tetromino.colour);
+            });
+        };
         
         Grid.prototype.dropNewTetromino = function() {
             this.tetromino = this.tetrominoFactory.makeTetromino();  
@@ -109,6 +116,11 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
                     while(this.tetromino.move({x: 0, y: 1}));
                 }
             }
+            this.updated();
+        };
+
+        Grid.prototype.dropTetromino = function(direction) {
+            this.tetromino.drop();            
             this.updated();
         };
 

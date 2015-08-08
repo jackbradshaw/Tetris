@@ -15,6 +15,11 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
             var context = self.canvas.getContext("2d");
             context.clearRect(0, 0, self.canvas.width, self.canvas.height);
 
+            self.grid.getGhostTiles().forEach(function(tile) {
+                context.strokeStyle = tile.colour;
+                context.strokeRect(tile.x * self.blockSize, (tile.y - 2) * self.blockSize, self.blockSize, self.blockSize);
+            });
+
             var tiles = Array.prototype.concat.apply(this.grid.getTetrominoTiles(),
                 this.grid.rows.map(function(row, y) {
                     return row.map(function(colour, x) {
@@ -25,14 +30,17 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
                 }));
             tiles.forEach(function(tile) {
                 if(tile.y >= 2) {
+                    context.strokeStyle = "black";
                     context.fillStyle = tile.colour;
                     context.fillRect(tile.x * self.blockSize, (tile.y - 2) * self.blockSize, self.blockSize, self.blockSize);
+                    context.strokeRect(tile.x * self.blockSize, (tile.y - 2) * self.blockSize, self.blockSize, self.blockSize);
                 }
-            });
+            });           
         }
         
         TetrisViewModel.prototype.keyDown = function(viewmodel, event) {
             var code = event.keyCode || event.which; 
+            console.log(code);
             if(code === 97) {
                 this.grid.moveTetromino({x:-1, y:0}); 
             }
@@ -41,6 +49,9 @@ define(["./Grid", "./Tile"], function(Grid, Tile) {
             }
             if(code === 115) {
                 this.grid.moveTetromino({x:0, y:1});
+            }
+            if(code === 119) {
+                this.grid.dropTetromino();
             }
             if(code === 107) {
                 this.grid.rotateTetromino(-1);   

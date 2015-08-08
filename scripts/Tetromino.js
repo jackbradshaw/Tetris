@@ -21,6 +21,12 @@ define(function() {
             return canMoveBlock;
         };
 
+        Tetromino.prototype.drop = function(direction) {
+            var droppedOffset = this.getDroppedOffset();
+            this.position.y += droppedOffset.y;
+            this.position.x += droppedOffset.x;
+        }
+
         Tetromino.prototype.canMove = function(offset) {
             return this.willFit(this.getOffsetCoordinates(offset));
         }; 
@@ -77,6 +83,18 @@ define(function() {
                     y: self.position.y + offset.y + coordinate.y
                 };
             });
+        }
+
+        Tetromino.prototype.getDroppedOffset = function() {
+            var y = 0;
+            while(this.canMove({ x: 0, y: y + 1 })) {
+                y++;
+            }
+            return { x: 0, y: y };
+        }
+
+        Tetromino.prototype.getDroppedCoordinates = function() {
+            return this.getOffsetCoordinates(this.getDroppedOffset());
         }
 
         Tetromino.prototype.getRotated = function(rotationState) {
