@@ -51,7 +51,7 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
         } 
         
         Grid.prototype.scheduleMoveDown = function() {
-            setTimeout(this.moveDown.bind(this), this.dropInterval);
+            this.scheduledMoveDown = setTimeout(this.moveDown.bind(this), this.dropInterval);
         }
 
         Grid.prototype.moveDown = function() {
@@ -107,7 +107,13 @@ define(["./TetrominoFactory", "./Tile"], function(TetrominoFactory, Tile) {
         
         Grid.prototype.dropNewTetromino = function() {
             this.tetromino = this.tetrominoFactory.makeTetromino();  
-            this.scheduleMoveDown(); 
+            if(!this.tetromino.getOffsetCoordinates().every(this.isTileAvailable.bind(this))) {
+                alert("Game Over!");
+                clearTimeout(this.scheduledMoveDown);
+                this.updated();
+            } else {
+                this.scheduleMoveDown(); 
+            }
         };
 
         Grid.prototype.moveTetromino = function(direction) {
